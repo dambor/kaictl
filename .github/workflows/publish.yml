@@ -56,3 +56,5 @@ jobs:
             See [PyPI page](https://pypi.org/project/kaictl/${{ steps.version.outputs.VERSION }}/)
           draft: false
           prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
