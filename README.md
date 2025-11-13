@@ -4,6 +4,11 @@ Translate natural language requests into kubectl commands using Claude or Ollama
 
 ## Installation
 ```bash
+pip install kaictl
+```
+
+Or if you're running from source:
+```bash
 pip install -e .
 ```
 

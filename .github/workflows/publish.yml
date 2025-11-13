@@ -1,15 +1,14 @@
 name: Build and Publish to PyPI
 
 on:
-  release:
-    types: [created]
   push:
     tags:
       - 'v*'
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
+    
     steps:
     - uses: actions/checkout@v3
     
@@ -18,7 +17,7 @@ jobs:
       with:
         python-version: '3.10'
     
-    - name: Install dependencies
+    - name: Install build dependencies
       run: |
         python -m pip install --upgrade pip
         pip install build twine
@@ -26,8 +25,45 @@ jobs:
     - name: Build package
       run: python -m build
     
+    - name: Check package
+      run: twine check dist/*
+    
     - name: Publish to PyPI
       env:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
       run: twine upload dist/*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Get version from tag
+      id: version
+      run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+    
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        body: |
+          KaiCTL ${{ steps.version.outputs.VERSION }} has been published to PyPI!
+          
+          Install with: `pip install kaictl==${{ steps.version.outputs.VERSION }}`
+          
+          See [PyPI page](https://pypi.org/project/kaictl/${{ steps.version.outputs.VERSION }}/)
+        draft: false
+        prerelease: false
+```
+
+Then click **"Commit changes"**
+
+### Step 4: Create the Tests Workflow
+
+Click **"Add file"** → **"Create new file"** again
+
+Path:
+```
+.github/workflows/tests.yml
